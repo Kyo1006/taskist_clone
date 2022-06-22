@@ -6,9 +6,6 @@ import 'package:localstore/localstore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-import 'add_task_dialog.dart';
-
-
 class EditTask extends StatefulWidget {
   const EditTask({ Key? key, required this.item }) : super(key: key);
   
@@ -250,11 +247,13 @@ class _EditTaskState extends State<EditTask> {
                 color: Color(0xFF7f8c8d)
               ),
             ),
+            
             actions: [
               ElevatedButton(
                 onPressed: () {
                   widget.item.addTask({myController.text: false});
                   Navigator.pop(context, 'OK');
+                  myController.clear();
                 }, 
                 child: const Text('Add'),
                 style: ElevatedButton.styleFrom(
