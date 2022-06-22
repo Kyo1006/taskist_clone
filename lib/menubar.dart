@@ -5,8 +5,9 @@ import 'tasklist.dart';
 import 'tasksetting.dart';
 
 class MenuBar extends StatefulWidget {
-  const MenuBar({ Key? key }) : super(key: key);
+  const MenuBar({ Key? key ,required this.index}) : super(key: key);
 
+  final int index;
   @override
   State<MenuBar> createState() => _MenuBarState();
 }
@@ -26,6 +27,15 @@ class _MenuBarState extends State<MenuBar> {
       _selectedIndex = index;
     });
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _selectedIndex = widget.index;
+    super.initState();
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {

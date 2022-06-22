@@ -17,7 +17,7 @@ class TaskSetting extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(0, 60, 0, 0),
               padding: const EdgeInsets.all(15),
               width: MediaQuery.of(context).size.width * 0.95,
-              height: 220,
+              height: 230,
               decoration:  BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 color: Colors.white,

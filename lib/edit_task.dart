@@ -4,8 +4,10 @@ import 'tasks.dart';
 import 'dart:async';
 import 'package:localstore/localstore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'add_task_dialog.dart';
+
 
 class EditTask extends StatefulWidget {
   const EditTask({ Key? key, required this.item }) : super(key: key);
@@ -21,7 +23,7 @@ class _EditTaskState extends State<EditTask> {
   final _items = <String,Tasks>{};
   StreamSubscription<Map<String, dynamic>>? _subscription;
 
-  int count = 0;
+  double progress = 0;
 
   var myController = TextEditingController();
 
@@ -31,11 +33,31 @@ class _EditTaskState extends State<EditTask> {
       setState(() {
         final item = Tasks.fromMap(event);
         _items.putIfAbsent(item.name, () => item);
+        pickerColor = Color(widget.item.color);
+        currentColor = Color(widget.item.color);
+        if (widget.item.tasks.isNotEmpty) {
+          var countDone = widget.item.tasks.where((element) => element.values.toList().first).toList().length;
+          progress = countDone / widget.item.tasks.length;
+        }
+        else {
+          progress = 0;
+        }
       });
     });
     if (kIsWeb) _db.collection('TaskLists').stream.asBroadcastStream();
+    
     super.initState();
   }
+
+  // create some values
+  Color pickerColor = const Color(0xff443a49);
+  Color currentColor = const Color(0xff443a49);
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -44,16 +66,43 @@ class _EditTaskState extends State<EditTask> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () => showDialog(
+            context: context, 
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('Select a color'),
+              content: SingleChildScrollView(
+                child: ColorPicker(
+                  pickerColor: pickerColor,
+                  onColorChanged: changeColor,
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Got it'),
+                  onPressed: () {
+                    setState(() => currentColor = pickerColor);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            )
+          ),
+          icon: Icon(Icons.circle, color: currentColor, size: 36),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context, true);
+                setState(() {
+                  widget.item.updateColor(currentColor.value);
+                });
+                Navigator.pop(context, false);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.cancel_outlined, 
-                color: Color(0xFF6933FF),
+                color: currentColor,
                 size: 35
               )
             ),
@@ -63,7 +112,7 @@ class _EditTaskState extends State<EditTask> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(50, 20, 20, 20),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children:<Widget> [
@@ -76,11 +125,6 @@ class _EditTaskState extends State<EditTask> {
                     fontWeight: FontWeight.w600
                   )),
                   IconButton(
-                    // onPressed: () {
-                    //   widget.item.delete();
-                    //   _items.remove(widget.item.name);
-                    //   Navigator.pop(context);
-                    // },
                     onPressed: () => showDialog(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
@@ -89,11 +133,11 @@ class _EditTaskState extends State<EditTask> {
                         actions: [
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.pop(context, true);
+                              Navigator.pop(context, false);
                             }, 
                             child: const Text('No'),
                             style: ElevatedButton.styleFrom(
-                              primary: const Color(0xFF6933FF)
+                              primary: currentColor
                             ),
                           ),
                           ElevatedButton(
@@ -104,17 +148,43 @@ class _EditTaskState extends State<EditTask> {
                             }, 
                             child: const Text('Yes'),
                             style: ElevatedButton.styleFrom(
-                              primary: const Color(0xFF6933FF)
+                              primary: currentColor
                             ),
                           )
                         ],
                       )
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.delete,
-                      color: Color(0xFF6933FF),
+                      color: currentColor,
                       size: 40,
                     )
+                  )
+                ]
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6,
+                      color: currentColor,
+                      backgroundColor: const Color(0xFFecf0f1),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      alignment: Alignment.topRight,
+                      child: Text(
+                        '${(progress * 100).round()} %',
+                        style: const TextStyle(
+                          fontSize: 14,
+                        )
+                      )
+                    ),
                   )
                 ]
               ),
@@ -128,7 +198,7 @@ class _EditTaskState extends State<EditTask> {
                   itemCount: widget.item.tasks.length,
                   itemBuilder: (BuildContext context, index) {
                     Color getColor(Set<MaterialState> states) {
-                      return const Color(0xFF6933FF);
+                      return currentColor;
                     }
                     return Row(
                       children: <Widget> [
@@ -138,7 +208,11 @@ class _EditTaskState extends State<EditTask> {
                           value: widget.item.tasks[index].values.toList().first, 
                           onChanged: (bool? value) {
                             setState(() {
-                              widget.item.updateTask(index, !widget.item.tasks[index].values.toList().first);
+                              widget.item.updateTask(
+                                index, 
+                                !widget.item.tasks[index].values.toList().first, 
+                                currentColor.value
+                              );
                             });
                           }
                         ),
@@ -147,7 +221,7 @@ class _EditTaskState extends State<EditTask> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.normal,
-                            color: widget.item.tasks[index].values.toList().first ? const Color(0xFF6933FF) : Colors.black,
+                            color: widget.item.tasks[index].values.toList().first ? currentColor : Colors.black,
                             decoration: widget.item.tasks[index].values.toList().first ? TextDecoration.lineThrough: null
                           )
                         ),
@@ -163,10 +237,35 @@ class _EditTaskState extends State<EditTask> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => showDialog(
           context: context,
-          builder: (BuildContext context) => AddTaskDialog(item: widget.item)
+          builder: (BuildContext context) => AlertDialog(
+            content: TextField(
+              controller: myController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Item',
+              ),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Color(0xFF7f8c8d)
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  widget.item.addTask({myController.text: false});
+                  Navigator.pop(context, 'OK');
+                }, 
+                child: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  primary: currentColor
+                ),
+              )
+            ],
+          )
         ),
         child: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF6933FF),
+        backgroundColor: currentColor,
       ),
     );
   }

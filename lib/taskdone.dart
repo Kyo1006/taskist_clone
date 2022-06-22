@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:localstore/localstore.dart';
 import 'tasks.dart';
 import 'edit_task.dart';
+import 'menubar.dart';
 
 class TaskDone extends StatefulWidget {
   const TaskDone({ Key? key }) : super(key: key);
@@ -35,12 +36,19 @@ class _TaskDoneState extends State<TaskDone> {
     super.initState();
   }
 
-  FutureOr onGoBack(dynamic value, Tasks item) {
-    if(value) {
+  FutureOr onGoBack(dynamic resule, Tasks item) {
+    if(resule) {
       setState(() {
         item.delete();
         _items.remove(item.name);
       });
+    }
+    else {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (BuildContext context) {
+          return const MenuBar(index: 0);
+        })
+      );
     }
   }
 
@@ -82,7 +90,7 @@ class _TaskDoneState extends State<TaskDone> {
                       width: 220,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: const Color(0xFF6933FF),
+                        color: Color(item.color),
                       ),
                       child: Column(
                         children: <Widget>[
@@ -104,24 +112,24 @@ class _TaskDoneState extends State<TaskDone> {
                             height: 200,
                             // margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                             child: Column(
-                              children: item.tasks.map((item) {
+                              children: item.tasks.map((task) {
                                 return Row(
                                   children: <Widget> [
                                     Checkbox(
                                       checkColor: Colors.white,
                                       shape: const CircleBorder(),
                                       // fillColor: MaterialStateProperty.resolveWith(getColor),
-                                      activeColor: const Color(0xFF6933FF),
-                                      value: item.values.toList().first, 
+                                      activeColor: Color(item.color),
+                                      value: task.values.toList().first, 
                                       onChanged: (bool? value) {}
                                     ),
                                     Text(
-                                      item.keys.toList().first,
+                                      task.keys.toList().first,
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.normal,
-                                        color: item.values.toList().first ? const Color(0xFFf7f1e3): Colors.white,
-                                        decoration: item.values.toList().first ? TextDecoration.lineThrough : null
+                                        color: task.values.toList().first ? const Color(0xFFf7f1e3): Colors.white,
+                                        decoration: task.values.toList().first ? TextDecoration.lineThrough : null
                                       )
                                     ),
                                   ],

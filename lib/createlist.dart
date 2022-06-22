@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:localstore/localstore.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'tasks.dart';
 
 class CreateList extends StatefulWidget {
@@ -19,6 +20,13 @@ class _CreateListState extends State<CreateList> {
 
   final myController = TextEditingController();
 
+  // create some values
+  Color pickerColor = const Color(0xff443a49);
+  Color currentColor = const Color(0xff443a49);
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+  }
 
   @override
   void initState() {
@@ -45,45 +53,71 @@ class _CreateListState extends State<CreateList> {
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(25),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget> [
-              const Text('Add the name of your list', style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF95a5a6)
-              )),
-              TextField(
-                controller: myController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Your List...',
-                  hintStyle: TextStyle(
-                    color: Color(0xFFbdc3c7)
-                  )
-                ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  color: Color(0xFF7f8c8d)
-                ),
-                autofocus: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget> [
+            const Text('Add the name of your list', style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF95a5a6)
+            )),
+            TextField(
+              controller: myController,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Your List...',
+                hintStyle: TextStyle(
+                  color: Color(0xFFbdc3c7)
+                )
+              ),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                color: Color(0xFF7f8c8d)
+              ),
+              autofocus: true,
+            ),
+            ElevatedButton(
+              onPressed: () => showDialog(
+                context: context, 
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Select a color'),
+                  content: SingleChildScrollView(
+                    child: ColorPicker(
+                      pickerColor: pickerColor,
+                      onColorChanged: changeColor,
+                    ),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Got it'),
+                      onPressed: () {
+                        setState(() => currentColor = pickerColor);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                )
+              ), 
+              child: const SizedBox.shrink(),
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                primary: currentColor
               )
-            ],
-          ),
+            )
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          final item = Tasks(name: myController.text, tasks: [], status: false);
+          final item = Tasks(name: myController.text, tasks: [], status: false, color: currentColor.value);
           item.save();
           _items.putIfAbsent(item.name, () => item);
           Navigator.pop(context);
         },
         label: const Text('Create Task'),
         icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF8e44ad),
+        backgroundColor: currentColor,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,  
     );
