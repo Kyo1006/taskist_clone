@@ -32,38 +32,37 @@ class Tasks {
       name: map['name'],
       tasks: map['tasks'],
       status: map['status'],
-      color: map['color']
+      color: map['color'],
     );
   }
 }
 
 extension ExtTasks on Tasks {
-  Future save() async {
-    final _db = Localstore.instance;
-    return _db.collection('TaskLists').doc(name).set(toMap());
+  Future save(Localstore db) async {
+    // final _db = Localstore.instance;
+    return db.collection('TaskLists').doc(name).set(toMap());
   }
 
-  Future delete() async {
-    final _db = Localstore.instance;
-    return _db.collection('TaskLists').doc(name).delete();
+  Future delete(Localstore db) async {
+    // final _db = Localstore.instance;
+    return db.collection('TaskLists').doc(name).delete();
   }
 
-  Future addTask(Map<String,bool> task) async {
-    final _db = Localstore.instance;
+  Future addTask(Map<String,bool> task,  Localstore db) async {
+    // final _db = Localstore.instance;
     tasks.add(task);
     final item = Tasks(name: name, tasks: tasks, status: status, color: color);
-    return _db.collection('TaskLists').doc(name).set(item.toMap());
+    return db.collection('TaskLists').doc(name).set(item.toMap());
   }
 
-  Future removeTask(Map<String,bool> task) async {
-    final _db = Localstore.instance;
-    tasks.add(task);
+  Future removeTask(Map<String,dynamic> task, Localstore db) async {
+    tasks.remove(task);
     final item = Tasks(name: name, tasks: tasks, status: status, color: color);
-    return _db.collection('TaskLists').doc(name).set(item.toMap());
+    return db.collection('TaskLists').doc(name).set(item.toMap());
   }
 
-  Future updateTask(int index, bool status, int color) async {
-    final _db = Localstore.instance;
+  Future updateTask(int index, bool status, int color, Localstore db) async {
+    // final _db = Localstore.instance;
     String taskname = tasks[index].keys.toList().first;
     tasks[index][taskname] = status;
     var done = true;
@@ -74,13 +73,11 @@ extension ExtTasks on Tasks {
       }
     }
     final item = Tasks(name: name, tasks: tasks, status: done, color: color);
-    return _db.collection('TaskLists').doc(name).set(item.toMap());
+    return db.collection('TaskLists').doc(name).set(item.toMap());
   }
 
-  Future updateColor(int color) async {
-    final _db = Localstore.instance;
-
-
+  Future updateColor(int color, Localstore db) async {
+    // final _db = Localstore.instance;
     var done = true;
     if (tasks.isEmpty) {
       done = false;
@@ -94,6 +91,6 @@ extension ExtTasks on Tasks {
     }
     final item = Tasks(name: name, tasks: tasks, status: done, color: color);
 
-    return _db.collection('TaskLists').doc(name).set(item.toMap());
+    return db.collection('TaskLists').doc(name).set(item.toMap());
   }
 }

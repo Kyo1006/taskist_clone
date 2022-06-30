@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 
-import 'taskdone.dart';
-import 'tasklist.dart';
-import 'tasksetting.dart';
+import '../app_screen/task_done.dart';
+import '../app_screen/task_list.dart';
+import '../app_screen/task_setting.dart';
+
 
 class MenuBar extends StatefulWidget {
-  const MenuBar({ Key? key ,required this.index}) : super(key: key);
+  const MenuBar({ Key? key ,required this.index }) : super(key: key);
 
   final int index;
+  // final ThemeNotifier theme;
   @override
   State<MenuBar> createState() => _MenuBarState();
 }
 
 class _MenuBarState extends State<MenuBar> {
+
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     TaskDone(),
     TaskList(),
     TaskSetting()
   ];
+  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,7 +32,6 @@ class _MenuBarState extends State<MenuBar> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _selectedIndex = widget.index;
     super.initState();
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:taskist/edit_task.dart';
-import 'tasks.dart';
-import 'edit_task.dart';
+import 'package:taskist/app_screen/edit_task.dart';
+import '../tasks.dart';
+import '../app_screen/edit_task.dart';
 
 class Item extends StatefulWidget {
   const Item({ Key? key, required this.item }) : super(key: key);

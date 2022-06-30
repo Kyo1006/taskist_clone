@@ -42,7 +42,6 @@ class _HeaderState extends State<Header> {
   TextStyle dateStyle = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w500,
-    color: Color(0xFF2c3e50)
   );
 
   @override
@@ -58,7 +57,7 @@ class _HeaderState extends State<Header> {
               Row(
                 children: <Widget>[
                   Text(date.day.toString(), style: dateStyle),
-                  Text(Header.months[date.month].toString(), style: dateStyle)
+                  Text(Header.months[date.month].toString(), style: dateStyle,),
                 ],
               ),
             ],
@@ -80,12 +79,10 @@ class _HeaderState extends State<Header> {
                 children: <Widget> [
                   const Text('Task',style: TextStyle(
                     fontSize: 28,
-                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                   )),
                   Text(widget.title, style:  const TextStyle(
                     fontSize: 28,
-                    color: Color(0xFF95a5a6),
                     fontWeight: FontWeight.w500,
                   ))
                 ]
